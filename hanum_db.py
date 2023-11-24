@@ -1,14 +1,16 @@
 import pymysql
+from flask import jsonify
 
 # db에 데이터 추가
-# db = pymysql.connect(host="127.0.0.1", user="root", password="shivainu070309!", charset="utf8")
-# cursor = db.cursor()
+def insert_db(author, pwd, content, title):
+    db = pymysql.connect(host="127.0.0.1", user="root", password="shivainu070309!", charset="utf8")
+    cursor = db.cursor()
 
-# cursor.execute('USE hanum_db;')
-# cursor.execute('INSERT INTO post_table (author, pwd, content, title) VALUES ("권기현", "1234", "db 새로 설정중", "하 시발좆같은 backend");')
+    cursor.execute('USE hanum_db;')
+    cursor.execute(f'INSERT INTO post_table (author, pwd, content, title) VALUES ("{author}", "{pwd}", "{content}", "{title}");')
 
-# db.commit()
-# db.close()
+    db.commit()
+    db.close()
     
 # db에 있는 post_table 내용 확인
 def idcheck():
@@ -16,13 +18,14 @@ def idcheck():
     cursor = db.cursor()
 
     cursor.execute('USE hanum_db;')
-    cursor.execute('select id from post_table')
-    res = cursor.fetchall()
+    cursor.execute('select id from post_table ORDER BY id DESC LIMIT 1')
+    res = cursor.fetchone()
 
     for data in res:
-        wow = str(data)
-        id = wow.replace("(","").replace(")","").replace(",","")
-        print(id)
+        data = data
+        # id = wow.replace("(","").replace(")","").replace(",","").replace("'","")
+        # id = int(id)
+        return data
 
     db.commit() 
     db.close()
