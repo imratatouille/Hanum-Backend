@@ -3,13 +3,12 @@ import hanum_db
 
 app = Flask(__name__)
 
-id = 0
 title = ""
 author = ""
 
 post = [
     {
-            "id" : id,
+            "id" : 1,
             "title" : f"{title}",
             "author" : f"{author}"
         }
@@ -35,8 +34,13 @@ def postit():
         if len(posts) == 0:
             return 'No post'
         else:
-            i =+ 1
-            return jsonify({"id": i})
+            author = posts['author']
+            pwd = posts['password']
+            content = posts['content']
+            title = posts['title']
+            hanum_db.insert_db(author=author, pwd=pwd, content=content, title=title)
+            id = hanum_db.idcheck()
+            return jsonify({"id":id}) # post 보낼때 null값 나오는거 수정해야됨
         
 if __name__ == '__main__':
    app.run(debug = True)
