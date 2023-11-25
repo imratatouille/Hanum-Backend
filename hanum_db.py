@@ -12,7 +12,7 @@ def insert_db(author, pwd, content, title):
     db.close()
     
 # db에 있는 post_table 중에 마지막 id내용 확인
-def idcheck():
+def last_id():
     db = pymysql.connect(host="127.0.0.1", user="root", password="shivainu070309!", charset="utf8")
     cursor = db.cursor()
 
@@ -26,46 +26,57 @@ def idcheck():
     db.commit() 
     db.close()
     
-# db에 있는 post_table 에 있는 모든 내용 확인
-def check():
+def check(num):
     db = pymysql.connect(host="127.0.0.1", user="root", password="shivainu070309!", charset="utf8")
     cursor = db.cursor()
 
     cursor.execute('USE hanum_db;')
-    cursor.execute('select * from post_table')
+    cursor.execute(f'select * from post_table where id = {num}')
     
     res = cursor.fetchall()
-
+    
+    
     db.commit() 
     db.close()
     
     return res
 
-# db에 있는 post_table 중에 마지막 id내용 확인
-def all_idcheck():
+def allcheck(limit):
     db = pymysql.connect(host="127.0.0.1", user="root", password="shivainu070309!", charset="utf8")
     cursor = db.cursor()
 
     cursor.execute('USE hanum_db;')
-    cursor.execute('select id from post_table')
-    res = cursor.fetchone()
-
-    for data in res:
-        return data
-
+    cursor.execute(f'select * from post_table limit {limit}')
+    
+    res = cursor.fetchall()
+    
     db.commit() 
     db.close()
 
-def page(page):
-    db = pymysql.connect(host="127.0.0.1", user="root", password="shivainu070309!", charset="utf8")
-    cursor = db.cursor()
-
-    cursor.execute('USE hanum_db;')
-    cursor.execute(f'select * from post_table where id = {page}')
-    
-    res = cursor.fetchone()
-
-    db.commit() 
-    db.close()
-    
     return res
+
+def del_db(postID):
+    db = pymysql.connect(host="127.0.0.1", user="root", password="shivainu070309!", charset="utf8")
+    cursor = db.cursor()
+    
+    cursor.execute('USE hanum_db;')
+    cursor.execute(f'delete from post_table where id = {postID}')
+    
+    db.commit() 
+    db.close()
+    
+def check_pw(postID):
+    db = pymysql.connect(host="127.0.0.1", user="root", password="shivainu070309!", charset="utf8")
+    cursor = db.cursor()
+    
+    cursor.execute('USE hanum_db;')
+    cursor.execute(f'select pwd from post_table where id = {postID}')
+    
+    pwd = cursor.fetchall()
+    pwd = str(pwd)
+    pwd = pwd.replace("(","").replace(")","").replace(",","").replace("'","")
+    
+    db.commit() 
+    db.close()
+    
+    return pwd
