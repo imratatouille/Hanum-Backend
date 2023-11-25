@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 import hanum_db
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -13,7 +14,8 @@ def postit():
         limit = request.args.get('limit')
         limit = int(limit)
         page = request.args.get('page')
-        post = hanum_db.allcheck(limit)
+        page = int(page)
+        post = hanum_db.allcheck(limit=limit, page=page)
         return jsonify({"pageCount":page,"post": post}) # db에 있는 내용을 json으로 보내는 과정에서 대괄호[]로 보내지는 현상 (수정)
             
     
@@ -27,7 +29,9 @@ def postit():
             pwd = posts['password']
             content = posts['content']
             title = posts['title']
-            hanum_db.insert_db(author=author, pwd=pwd, content=content, title=title)
+            now = datetime.now()
+            now = now.isoformat()
+            hanum_db.insert_db(author=author, pwd=pwd, content=content, title=title, datetime=now)
             id = hanum_db.last_id()
             return jsonify({"id":id}) # post 보낼때 null값 나오는거 수정해야됨 (수정완료)
     

@@ -1,12 +1,12 @@
 import pymysql
 
 # db에 데이터 추가
-def insert_db(author, pwd, content, title):
+def insert_db(author, pwd, content, title, datetime):
     db = pymysql.connect(host="127.0.0.1", user="root", password="shivainu070309!", charset="utf8")
     cursor = db.cursor()
 
     cursor.execute('USE hanum_db;')
-    cursor.execute(f'INSERT INTO post_table (author, pwd, content, title) VALUES ("{author}", "{pwd}", "{content}", "{title}");')
+    cursor.execute(f'INSERT INTO post_table (author, pwd, content, title, datetime) VALUES ("{author}", "{pwd}", "{content}", "{title}", "{datetime}");')
 
     db.commit()
     db.close()
@@ -17,11 +17,11 @@ def last_id():
     cursor = db.cursor()
 
     cursor.execute('USE hanum_db;')
-    cursor.execute('select id from post_table ORDER BY id DESC LIMIT 1')
+    cursor.execute('select id from post_table ORDER BY id DESC LIMIT 1;')
     res = cursor.fetchone()
 
-    for data in res:
-        return data
+    for id in res:
+        return id
 
     db.commit() 
     db.close()
@@ -33,27 +33,49 @@ def check(num):
     cursor.execute('USE hanum_db;')
     cursor.execute(f'select * from post_table where id = {num}')
     
-    res = cursor.fetchall()
+    columns = [column[0] for column in cursor.description]
+    result = [dict(zip(columns, row)) for row in cursor.fetchall()]
+    
+    formatted_result = [{"id": row["id"], "author": row["author"], "content": row["content"], "title": row["title"]} for row in result]
     
     
     db.commit() 
     db.close()
     
-    return res
+    return formatted_result
 
-def allcheck(limit):
+def allcheck(page,limit):
     db = pymysql.connect(host="127.0.0.1", user="root", password="shivainu070309!", charset="utf8")
     cursor = db.cursor()
 
     cursor.execute('USE hanum_db;')
-    cursor.execute(f'select * from post_table limit {limit}')
-    
-    res = cursor.fetchall()
+    if page == 1:
+        cursor.execute(f'select * from post_table limit {limit} offset 0')
+    elif page == 2:
+        one_limit = limit
+        limit =+ limit
+        cursor.execute(f'select * from post_table limit {limit} offset {one_limit}')
+    elif page == 3:
+        one_limit =+ limit
+        limit =+ limit
+        cursor.execute(f'select * from post_table limit {limit} offset {one_limit}')
+    elif page == 4:
+        one_limit =+ limit
+        limit =+ limit
+        cursor.execute(f'select * from post_table limit {limit} offset {one_limit}')
+    elif page == 5:
+        one_limit =+ limit
+        limit =+ limit
+        cursor.execute(f'select * from post_table limit {limit} offset {one_limit}')
+
+    columns = [column[0] for column in cursor.description]
+    result = [dict(zip(columns, row)) for row in cursor.fetchall()]
+    formatted_result = [{"id": row["id"], "author": row["author"], "password": row["pwd"], "content": row["content"], "title": row["title"], "uploadAt": str(row["datetime"])} for row in result]
     
     db.commit() 
     db.close()
 
-    return res
+    return formatted_result
 
 def del_db(postID):
     db = pymysql.connect(host="127.0.0.1", user="root", password="shivainu070309!", charset="utf8")
