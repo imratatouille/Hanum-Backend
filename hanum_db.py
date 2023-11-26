@@ -1,104 +1,80 @@
 import pymysql
 
-# db에 데이터 추가
-def insert_db(author, pwd, content, title, datetime):
-    db = pymysql.connect(host="127.0.0.1", user="root", password="shivainu070309!", charset="utf8")
+def connect_db():
+    return pymysql.connect(host="127.0.0.1", user="root", password="shivainu070309!", charset="utf8")
+
+def execute_query(query, args=None, fetch_one=False):
+    db = connect_db()
     cursor = db.cursor()
 
     cursor.execute('USE hanum_db;')
-    cursor.execute(f'INSERT INTO post_table (author, pwd, content, title, datetime) VALUES ("{author}", "{pwd}", "{content}", "{title}", "{datetime}");')
+    cursor.execute(query, args)
+
+    result = None
+    if fetch_one:
+        result = cursor.fetchone()
+    else:
+        columns = [column[0] for column in cursor.description]
+        result = [dict(zip(columns, row)) for row in cursor.fetchall()]
 
     db.commit()
     db.close()
-    
-# db에 있는 post_table 중에 마지막 id내용 확인
-def last_id():
-    db = pymysql.connect(host="127.0.0.1", user="root", password="shivainu070309!", charset="utf8")
-    cursor = db.cursor()
 
-    cursor.execute('USE hanum_db;')
-    cursor.execute('select id from post_table ORDER BY id DESC LIMIT 1;')
-    res = cursor.fetchone()
+    return result
 
-    for id in res:
-        return id
+def insert_post(author, pwd, content, title, datetime):
+    query = f'INSERT INTO post_table (author, pwd, content, title, datetime) VALUES (%s, %s, %s, %s, %s);'
+    args = (author, pwd, content, title, datetime)
+    execute_query(query, args, fetch_one=True)
 
-    db.commit() 
-    db.close()
-    
-def check(num):
-    db = pymysql.connect(host="127.0.0.1", user="root", password="shivainu070309!", charset="utf8")
-    cursor = db.cursor()
+def insert_comment(author, pwd, content, postid):
+    query = 'INSERT INTO comments_table (author, password, content, post_id) VALUES (%s, %s, %s, %s);'
+    args = (author, pwd, content, postid)
+    execute_query(query, args, fetch_one=True)
 
-    cursor.execute('USE hanum_db;')
-    cursor.execute(f'select * from post_table where id = {num}')
-    
-    columns = [column[0] for column in cursor.description]
-    result = [dict(zip(columns, row)) for row in cursor.fetchall()]
-    
-    formatted_result = [{"id": row["id"], "author": row["author"], "content": row["content"], "title": row["title"]} for row in result]
-    
-    
-    db.commit() 
-    db.close()
-    
-    return formatted_result
+def last_post_id():
+    query = 'SELECT id FROM post_table ORDER BY id DESC LIMIT 1;'
+    result = execute_query(query, fetch_one=True)
+    return result[0] if result else None
 
-def allcheck(page,limit):
-    db = pymysql.connect(host="127.0.0.1", user="root", password="shivainu070309!", charset="utf8")
-    cursor = db.cursor()
+def get_post_by_id(post_id):
+    query = 'SELECT * FROM post_table WHERE id = %s;'
+    args = (post_id,)
+    result = execute_query(query, args)
+    return result
 
-    cursor.execute('USE hanum_db;')
-    if page == 1:
-        cursor.execute(f'select * from post_table limit {limit} offset 0')
-    elif page == 2:
-        one_limit = limit
-        limit =+ limit
-        cursor.execute(f'select * from post_table limit {limit} offset {one_limit}')
-    elif page == 3:
-        one_limit =+ limit
-        limit =+ limit
-        cursor.execute(f'select * from post_table limit {limit} offset {one_limit}')
-    elif page == 4:
-        one_limit =+ limit
-        limit =+ limit
-        cursor.execute(f'select * from post_table limit {limit} offset {one_limit}')
-    elif page == 5:
-        one_limit =+ limit
-        limit =+ limit
-        cursor.execute(f'select * from post_table limit {limit} offset {one_limit}')
+def last_comment_id():
+    query = 'SELECT comment_id FROM comments_table ORDER BY comment_id DESC LIMIT 1;'
+    result = execute_query(query, fetch_one=True)
+    return result[0] if result else None
 
-    columns = [column[0] for column in cursor.description]
-    result = [dict(zip(columns, row)) for row in cursor.fetchall()]
-    formatted_result = [{"id": row["id"], "author": row["author"], "password": row["pwd"], "content": row["content"], "title": row["title"], "uploadAt": str(row["datetime"])} for row in result]
-    
-    db.commit() 
-    db.close()
+def get_posts_page(page, limit):
+    offset = (page - 1) * limit
+    query = 'SELECT * FROM post_table LIMIT %s OFFSET %s;'
+    args = (limit, offset)
+    result = execute_query(query, args)
+    return result
 
-    return formatted_result
+def delete_post(post_id):
+    query = 'DELETE FROM post_table WHERE id = %s;'
+    args = (post_id,)
+    execute_query(query, args, fetch_one=True)
+    return True
 
-def del_db(postID):
-    db = pymysql.connect(host="127.0.0.1", user="root", password="shivainu070309!", charset="utf8")
-    cursor = db.cursor()
-    
-    cursor.execute('USE hanum_db;')
-    cursor.execute(f'delete from post_table where id = {postID}')
-    
-    db.commit() 
-    db.close()
-    
-def check_pw(postID):
-    db = pymysql.connect(host="127.0.0.1", user="root", password="shivainu070309!", charset="utf8")
-    cursor = db.cursor()
-    
-    cursor.execute('USE hanum_db;')
-    cursor.execute(f'select pwd from post_table where id = {postID}')
-    
-    pwd = cursor.fetchall()
-    pwd = str(pwd)
-    pwd = pwd.replace("(","").replace(")","").replace(",","").replace("'","")
-    
-    db.commit() 
-    db.close()
-    
-    return pwd
+def delete_comment(comment_id):
+    query = 'DELETE FROM comments_table WHERE comment_id = %s;'
+    args = (comment_id,)
+    execute_query(query, args, fetch_one=True)
+    return True
+
+def get_post_password(post_id):
+    query = 'SELECT pwd FROM post_table WHERE id = %s;'
+    args = (post_id,)
+    result = execute_query(query, args, fetch_one=True)
+    return result[0] if result else None
+
+def get_comment_password(comment_id):
+    query = 'SELECT password FROM comments_table WHERE comment_id = %s;'
+    args = (comment_id,)
+    result = execute_query(query, args, fetch_one=True)
+    return result[0] if result else None
