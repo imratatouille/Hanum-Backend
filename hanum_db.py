@@ -43,9 +43,10 @@ def last_post_id():
 
 # db에서 post id값 받아오는 함수
 def get_post_by_id(post_id):
-    query = 'SELECT * FROM post_table WHERE id = %s;'
+    query = 'SELECT id FROM post_table WHERE id = %s;'
     args = (post_id,)
     result = execute_query(query, args)
+    print(result)
     return result
 
 # db에서 마지막 commnet id값을 return 하는 함수
@@ -64,7 +65,14 @@ def get_posts_page(page, limit):
 
 # db에서 post를 delete 하는 함수
 def delete_post(post_id):
-    query = 'DELETE FROM post_table WHERE id = %s;'
+    post_id = get_post_by_id(post_id)
+    if post_id == False:
+        query = '''
+        UPDATE comments_table SET post_id = null where post_id = %s;
+        DELETE FROM post_table WHERE id = %s;
+        '''
+    else:
+        query = 'DELETE FROM post_table WHERE id = %s;'
     args = (post_id,)
     execute_query(query, args, fetch_one=True)
     return True

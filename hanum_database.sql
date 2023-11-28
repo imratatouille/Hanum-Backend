@@ -1,0 +1,18 @@
+CREATE TABLE posts_table (
+    id INT NOT NULL AUTO_INCREMENT,
+    author VARCHAR(45) NOT NULL,
+    password VARCHAR(45) NOT NULL,
+    content VARCHAR(45) NOT NULL,
+    title VARCHAR(45) NOT NULL,
+    datetime VARCHAR(45) NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY id_UNIQUE (id)
+);
+CREATE TABLE comments_table (
+    comment_id INT NOT NULL AUTO_INCREMENT,
+    author VARCHAR(45) NOT NULL,
+    password VARCHAR(45) NOT NULL,
+    content VARCHAR(45) NOT NULL,
+    PRIMARY KEY (comment_id),
+    UNIQUE KEY id_UNIQUE (comment_id)
+);
