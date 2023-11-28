@@ -1,7 +1,7 @@
 import pymysql
 
 def connect_db():
-    return pymysql.connect(host="127.0.0.1", user="root", password="shivainu070309!", charset="utf8")
+    return pymysql.connect(host="127.0.0.1", user="(mysql_id)", password="(mysql_password)", charset="utf8")
 
 # query문 실행 및 반환값 받는 함수
 def execute_query(query, args=None, fetch_one=False):
