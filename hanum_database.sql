@@ -1,3 +1,4 @@
+-- posts_table create query문
 CREATE TABLE posts_table (
     id INT NOT NULL AUTO_INCREMENT,
     author VARCHAR(45) NOT NULL,
@@ -8,6 +9,7 @@ CREATE TABLE posts_table (
     PRIMARY KEY (id),
     UNIQUE KEY id_UNIQUE (id)
 );
+-- comments_table create query
 CREATE TABLE comments_table (
     comment_id INT NOT NULL AUTO_INCREMENT,
     author VARCHAR(45) NOT NULL,
