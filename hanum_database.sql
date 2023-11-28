@@ -1,4 +1,4 @@
--- posts_table create query문
+-- posts_table create query
 CREATE TABLE posts_table (
     id INT NOT NULL AUTO_INCREMENT,
     author VARCHAR(45) NOT NULL,
