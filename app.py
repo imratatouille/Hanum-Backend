@@ -51,11 +51,17 @@ def add_comment(postID):
 
 @app.route('/posts/<int:postID>/comments/<int:commentID>', methods=['DELETE']) # db에 있는 comment-pw랑 받은 comment-pw값이 같으면 delete
 def delete_comment(postID, commentID):
+    get_id = hanum_db.get_post_by_id(postID)
     get_pwd = request.args.get('password')
     db_pwd = hanum_db.get_comment_password(commentID)
-    if get_pwd == db_pwd:
-        result = hanum_db.delete_comment(commentID)
-        return jsonify({"ok": result})
+    if get_id == [{'id': postID}]:
+        if get_pwd == db_pwd:
+            result = hanum_db.delete_comment(commentID)
+            return jsonify({"ok": result})
+        elif get_pwd != db_pwd:
+            return jsonify({"ok": False})
+        else:
+            return jsonify({'ok': False})
     else:
         return jsonify({"ok": False})
 
