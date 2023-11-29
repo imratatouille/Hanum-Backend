@@ -15,6 +15,7 @@ CREATE TABLE comments_table (
     author VARCHAR(45) NOT NULL,
     password VARCHAR(45) NOT NULL,
     content VARCHAR(45) NOT NULL,
+    post_id INT,
     PRIMARY KEY (comment_id),
     UNIQUE KEY id_UNIQUE (comment_id)
 );
