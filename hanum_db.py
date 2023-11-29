@@ -50,10 +50,34 @@ def get_post_by_id(post_id):
 
 # db에서 post값 받아오는 함수
 def get_post(post_id):
-    query = "SELECT id, title, content, author, comment FROM posts_table WHERE id = %s;"
-    args = (post_id,)
-    result = execute_query(query, args)
-    return result
+    post_query = "SELECT id, title, content, author FROM posts_table WHERE id = %s;"
+    post_args = (post_id,)
+    post_result = execute_query(post_query, post_args)
+    
+    comment_query = "SELECT id, author, content, uploadAt FROM comments_table WHERE post_id = %s;"
+    comment_args = (post_id,)
+    comment_result = execute_query(comment_query, comment_args)
+    
+    comments_list = [
+        {
+            "id": comment["id"],
+            "author": comment["author"],
+            "content": comment["content"],
+            "uploadAt": comment["uploadAt"]
+        }
+        for comment in comment_result
+    ]
+    
+    post = {
+        "post":{
+            "id": post_result[0]["id"],
+            "title": post_result[0]["title"],
+            "content": post_result[0]["content"],
+            "author": post_result[0]["author"],
+            "comments": comments_list
+        }
+    }
+    return post
 
 # db에서 마지막 comment id값을 return 하는 함수
 def last_comment_id():
