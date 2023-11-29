@@ -31,7 +31,7 @@ def manage_posts():
 def manage_post(postID):                                     # delete => 고유postid값 받고 pw값 비교후 삭제
     if request.method == 'GET':                              # pw가 틀리면 false 맞아서 삭제되면 true 
         post = hanum_db.get_post(postID)
-        return jsonify({"post":post})
+        return jsonify(post)
     elif request.method == 'DELETE':
         get_pwd = request.args.get('password')
         db_pwd = hanum_db.get_post_password(postID)
@@ -64,11 +64,11 @@ def delete_comment(postID, commentID):
             result = hanum_db.delete_comment(commentID)
             return jsonify({"ok": result})
         elif get_pwd != db_pwd:
-            return jsonify({"ok": "Fail"})
+            return jsonify({"ok": "pw_Fail"})
         else:
-            return jsonify({'ok': "Fail"})
+            return jsonify({'ok': "another_Fail"})
     else:
-        return jsonify({"ok": "Fail"})
+        return jsonify({"ok": "id_Fail"})
 
 if __name__ == '__main__':
     app.run(debug=True)
