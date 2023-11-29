@@ -30,8 +30,8 @@ def manage_posts():
 @app.route('/posts/<int:postID>', methods=['GET', 'DELETE']) # get => 고유postid값 받고 return
 def manage_post(postID):                                     # delete => 고유postid값 받고 pw값 비교후 삭제
     if request.method == 'GET':                              # pw가 틀리면 false 맞아서 삭제되면 true 
-        post = hanum_db.get_post_by_id(postID)
-        return jsonify({"post": post})
+        post = hanum_db.get_post(postID)
+        return jsonify({"post":post})
     elif request.method == 'DELETE':
         get_pwd = request.args.get('password')
         db_pwd = hanum_db.get_post_password(postID)
@@ -45,9 +45,14 @@ def manage_post(postID):                                     # delete => 고유p
 def add_comment(postID):
     comment_data = request.get_json()
     author, pwd, content = comment_data['author'], comment_data['password'], comment_data['content']
-    hanum_db.insert_comment(author=author, pwd=pwd, content=content, postid=postID)
-    comment_id = hanum_db.last_comment_id()
-    return jsonify({"commentId": comment_id})
+    post_id = hanum_db.get_post_by_id(postID)
+    now = datetime.now().isoformat()
+    if post_id == [{'id': postID}]:
+        hanum_db.insert_comment(author=author, pwd=pwd, content=content, postid=postID, now=now)
+        comment_id = hanum_db.last_comment_id()
+        return jsonify({"commentId": comment_id})
+    else:
+        return jsonify({"commentId": False})
 
 @app.route('/posts/<int:postID>/comments/<int:commentID>', methods=['DELETE']) # db에 있는 comment-pw랑 받은 comment-pw값이 같으면 delete
 def delete_comment(postID, commentID):
@@ -59,11 +64,11 @@ def delete_comment(postID, commentID):
             result = hanum_db.delete_comment(commentID)
             return jsonify({"ok": result})
         elif get_pwd != db_pwd:
-            return jsonify({"ok": False})
+            return jsonify({"ok": "Fail"})
         else:
-            return jsonify({'ok': False})
+            return jsonify({'ok': "Fail"})
     else:
-        return jsonify({"ok": False})
+        return jsonify({"ok": "Fail"})
 
 if __name__ == '__main__':
     app.run(debug=True)
